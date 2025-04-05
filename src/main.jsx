@@ -1,20 +1,27 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import App from './App.jsx'
-import './index.css'
-import Dashboard from './pages/Dashboard.jsx'
-import FAQ from './pages/FAQ.jsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import App from "./App.jsx";
+import "./index.css";
+import Dashboard from "./pages/Dashboard.jsx";
+import FAQ from "./pages/FAQ.jsx";
+import LandingPage from "./pages/LandingPage.jsx";
+import Auth from "./auth/Auth.jsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: (
+      <Auth>
+        <App />
+      </Auth>
+    ),
     children: [
       {
         index: true,
         element: <Dashboard />,
       },
+
       {
         path: "trending-topics",
         element: <div className="p-6">Trending Topics Page</div>,
@@ -43,17 +50,29 @@ const router = createBrowserRouter([
         path: "pain-points",
         element: <div className="p-6">Customer Pain Points Page</div>,
       },
-      {path: "settings", element: <div className="p-6">Settings Page</div>},
+      { path: "settings", element: <div className="p-6">Settings Page</div> },
       {
         path: "help-support",
         element: <FAQ />,
       },
     ],
   },
+  {
+    path: "product",
+    element: <LandingPage />,
+  },
+  {
+    path: "login",
+    element: <div className="p-6">Login Page</div>,
+  },
+  {
+    path: "register",
+    element: <div className="p-6">Register Page</div>,
+  },
 ]);
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
     <RouterProvider router={router} />
-  </StrictMode>,
-)
+  </StrictMode>
+);
