@@ -7,6 +7,8 @@ import Dashboard from "./pages/Dashboard.jsx";
 import FAQ from "./pages/FAQ.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import Auth from "./auth/Auth.jsx";
+import LoginForm from "./login-register/LoginForm.jsx";
+import RegisterForm from "./login-register/RegisterForm.jsx";
 
 const router = createBrowserRouter([
   {
@@ -63,11 +65,11 @@ const router = createBrowserRouter([
   },
   {
     path: "login",
-    element: <div className="p-6">Login Page</div>,
+    element: <LoginForm />,
   },
   {
     path: "register",
-    element: <div className="p-6">Register Page</div>,
+    element: <RegisterForm />,
   },
 ]);
 
