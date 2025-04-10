@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { ImSpinner } from "react-icons/im";
 import GoogleButton from "../auth/GoogleButton";
 
 function LoginForm() {
+  const navigate = useNavigate();
+  const [isPending, setIsPending] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    rememberMe: false,
   });
 
   const [errors, setErrors] = useState({
@@ -68,7 +70,7 @@ function LoginForm() {
     setShowPassword((prev) => !prev);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Get all form elements
@@ -79,26 +81,22 @@ function LoginForm() {
     // Check each input's validity
     for (let i = 0; i < formElements.length; i++) {
       const element = formElements[i];
+      // Check validity
+      if (!element.validity.valid) {
+        isValid = false;
 
-      // Only validate inputs with name attribute
-      if (element.name && element.name !== "rememberMe") {
-        // Check validity
-        if (!element.validity.valid) {
-          isValid = false;
-
-          // Set appropriate error message based on validity state
-          if (element.name === "email") {
-            if (element.validity.valueMissing) {
-              newErrors.email = "Email is required";
-            } else if (element.validity.typeMismatch) {
-              newErrors.email = "Please enter a valid email address";
-            }
-          } else if (element.name === "password") {
-            if (element.validity.valueMissing) {
-              newErrors.password = "Password is required";
-            } else if (element.validity.tooShort) {
-              newErrors.password = "Password must be at least 8 characters";
-            }
+        // Set appropriate error message based on validity state
+        if (element.name === "email") {
+          if (element.validity.valueMissing) {
+            newErrors.email = "Email is required";
+          } else if (element.validity.typeMismatch) {
+            newErrors.email = "Please enter a valid email address";
+          }
+        } else if (element.name === "password") {
+          if (element.validity.valueMissing) {
+            newErrors.password = "Password is required";
+          } else if (element.validity.tooShort) {
+            newErrors.password = "Password must be at least 8 characters";
           }
         }
       }
@@ -108,9 +106,48 @@ function LoginForm() {
     setErrors(newErrors);
 
     // If the form is valid
-    if (isValid) {
-      console.log("Form submitted:", formData);
-      alert("Login successful!");
+    if (!isValid) {
+      setIsPending(false);
+      return;
+    }
+
+    // api call
+    setIsPending(true);
+    const response = await fetch("http://localhost:3000/users/login", {
+      method: "POST",
+      mode: "cors",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    setIsPending(false);
+    if (response.ok) {
+      alert(data.msg);
+      console.log(data.user);
+      navigate("/");
+    } else if (response.status === 400) {
+      setErrors((prevErrors) => {
+        const newErrors = data.errors.reduce((acc, error) => {
+          const { path, msg } = error;
+          if (acc.hasOwnProperty(path)) {
+            acc[path] = msg;
+          }
+          return acc;
+        }, {});
+        return newErrors;
+      });
+    } else {
+      setErrors((prev) => {
+        if (data.msg === "Incorrect email") {
+          return { ...prev, email: data.msg };
+        } else if (data.msg === "Incorrect password") {
+          return { ...prev, password: data.msg };
+        }
+      });
     }
   };
 
@@ -201,22 +238,6 @@ function LoginForm() {
           </div>
 
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center">
-              <input
-                id="rememberMe"
-                name="rememberMe"
-                type="checkbox"
-                checked={formData.rememberMe}
-                onChange={handleChange}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label
-                htmlFor="rememberMe"
-                className="ml-2 block text-sm text-gray-700"
-              >
-                Remember me
-              </label>
-            </div>
             <Link
               to="/forgot-password"
               className="text-sm font-medium text-blue-600 hover:text-blue-500"
@@ -226,10 +247,11 @@ function LoginForm() {
           </div>
 
           <button
+            disabled={isPending}
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            Sign in
+            {isPending ? <ImSpinner className="animate-spin" /> : "Sign in"}
           </button>
 
           <div className="mt-6">

@@ -9,12 +9,14 @@ function RegisterForm() {
   const [isPending, setIsPending] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
+    username: "",
     password: "",
     confirmPassword: "",
   });
 
   const [errors, setErrors] = useState({
     email: "",
+    username: "",
     password: "",
     confirmPassword: "",
   });
@@ -23,12 +25,12 @@ function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type } = e.target;
 
     // Update form data
     const updatedFormData = {
       ...formData,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     };
 
     setFormData(updatedFormData);
@@ -91,8 +93,12 @@ function RegisterForm() {
         message = "Please confirm your password";
       }
       // Password matching is handled in handleChange
-    } else if (name === "acceptTerms" && !e.target.checked) {
-      message = "You must accept the terms and conditions";
+    } else if (name === "username") {
+      if (validity.valueMissing) {
+        message = "Please enter a username";
+      } else if (validity.tooShort) {
+        message = "Username must be at least 5 characters long";
+      }
     }
 
     // Update error state if there's a message
@@ -135,6 +141,13 @@ function RegisterForm() {
             } else if (element.validity.typeMismatch) {
               newErrors.email = "Please enter a valid email address";
             }
+          } else if (element.name === "username") {
+            if (element.validity.valueMissing) {
+              newErrors.username = "Please enter a username";
+            } else if (element.validity.tooShort) {
+              newErrors.username =
+                "Username must be at least 5 characters long";
+            }
           } else if (element.name === "password") {
             if (element.validity.valueMissing) {
               newErrors.password = "Password is required";
@@ -173,6 +186,7 @@ function RegisterForm() {
     const response = await fetch("http://localhost:3000/users/register", {
       method: "POST",
       mode: "cors",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -188,7 +202,7 @@ function RegisterForm() {
     } else {
       setErrors((prevErrors) => {
         const newErrors = data.errors.reduce((acc, error) => {
-          const { path, msg } = error; 
+          const { path, msg } = error;
           if (acc.hasOwnProperty(path)) {
             acc[path] = msg;
           }
@@ -243,6 +257,32 @@ function RegisterForm() {
             />
             {errors.email && (
               <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+            )}
+          </div>
+
+          <div className="mb-4">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              onBlur={validateField}
+              className={`w-full px-3 py-2 border ${
+                errors.username ? "border-red-500" : "border-gray-300"
+              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+              placeholder="john doe"
+              minLength={5}
+              required
+            />
+            {errors.username && (
+              <p className="text-sm text-red-500 mt-1">{errors.username}</p>
             )}
           </div>
 
