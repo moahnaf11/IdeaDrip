@@ -5,11 +5,7 @@ function Auth({ children }) {
   const [isAuth, setIsAuth] = useState(true);
 
   if (isAuth) {
-    return (
-      <AuthContext.Provider value={{ isAuth, setIsAuth }}>
-        {children}
-      </AuthContext.Provider>
-    );
+    return <AuthContext value={{ isAuth, setIsAuth }}>{children}</AuthContext>;
   } else {
     return <Navigate to="/product" />;
   }

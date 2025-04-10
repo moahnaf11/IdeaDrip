@@ -1,9 +1,12 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import { ImSpinner } from "react-icons/im";
 import GoogleButton from "../auth/GoogleButton";
 
 function RegisterForm() {
+  const navigate = useNavigate();
+  const [isPending, setIsPending] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -109,10 +112,8 @@ function RegisterForm() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Get all form elements
     const formElements = e.target.elements;
     let isValid = true;
     const newErrors = { ...errors };
@@ -162,9 +163,34 @@ function RegisterForm() {
     setErrors(newErrors);
 
     // If the form is valid
-    if (isValid) {
-      console.log("Form submitted:", formData);
-      alert("Registration successful!");
+    if (!isValid) {
+      setIsPending(false);
+      return;
+    }
+
+    // api call
+    setIsPending(true);
+    const response = await fetch("http://localhost:3000/users/register", {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    setIsPending(false);
+    if (response.ok) {
+      // alert(data.msg);
+      console.log(data.user);
+      navigate("/login");
+    } else {
+      setErrors({
+        email: data.errors.email || "", // Default to an empty string if no error exists
+        password: data.errors.password || "",
+        confirmPassword: data.errors.confirmPassword || "",
+      });
     }
   };
 
@@ -295,10 +321,11 @@ function RegisterForm() {
           </div>
 
           <button
+            disabled={isPending}
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="w-full flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
           >
-            Create an account
+            {isPending ? <ImSpinner className="animate-spin" /> : "Create an account"}
           </button>
 
           <div className="mt-6">
