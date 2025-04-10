@@ -186,10 +186,15 @@ function RegisterForm() {
       console.log(data.user);
       navigate("/login");
     } else {
-      setErrors({
-        email: data.errors.email || "", // Default to an empty string if no error exists
-        password: data.errors.password || "",
-        confirmPassword: data.errors.confirmPassword || "",
+      setErrors((prevErrors) => {
+        const newErrors = data.errors.reduce((acc, error) => {
+          const { path, msg } = error; 
+          if (acc.hasOwnProperty(path)) {
+            acc[path] = msg;
+          }
+          return acc;
+        }, {});
+        return newErrors;
       });
     }
   };
@@ -325,7 +330,11 @@ function RegisterForm() {
             type="submit"
             className="w-full flex justify-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md"
           >
-            {isPending ? <ImSpinner className="animate-spin" /> : "Create an account"}
+            {isPending ? (
+              <ImSpinner className="animate-spin" />
+            ) : (
+              "Create an account"
+            )}
           </button>
 
           <div className="mt-6">
