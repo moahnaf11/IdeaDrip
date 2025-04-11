@@ -126,8 +126,8 @@ function LoginForm() {
     const data = await response.json();
     setIsPending(false);
     if (response.ok) {
-      alert(data.msg);
-      console.log(data.user);
+      // alert(data.msg);
+      // console.log(data.user);
       navigate("/");
     } else if (response.status === 400) {
       setErrors((prevErrors) => {

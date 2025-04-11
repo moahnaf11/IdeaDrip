@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   FiGrid,
   FiCalendar,
@@ -16,6 +16,7 @@ import {
 } from "react-icons/io5";
 
 function App() {
+  const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname.substring(1) || "explore-ideas";
   const [isOpen, setIsOpen] = useState(true); // sidebar open by default
@@ -223,6 +224,22 @@ function App() {
               )}
             </Link>
             <button
+              onClick={async () => {
+                const response = await fetch(
+                  `http://localhost:3000/users/logout`,
+                  {
+                    mode: "cors",
+                    method: "GET",
+                    credentials: "include",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                  }
+                );
+                const data = await response.json();
+                alert(data.msg);
+                navigate("/product");
+              }}
               onMouseEnter={() => setHoveredItem("Logout")}
               onMouseLeave={() => setHoveredItem(null)}
               className="flex relative items-center w-full p-2 rounded-lg mb-2 text-gray-600 hover:bg-primary/5 hover:text-primary transition-all duration-200"
