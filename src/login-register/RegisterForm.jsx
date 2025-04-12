@@ -203,9 +203,7 @@ function RegisterForm() {
       setErrors((prevErrors) => {
         const newErrors = data.errors.reduce((acc, error) => {
           const { path, msg } = error;
-          if (acc.hasOwnProperty(path)) {
-            acc[path] = msg;
-          }
+          acc[path] = msg;
           return acc;
         }, {});
         return newErrors;

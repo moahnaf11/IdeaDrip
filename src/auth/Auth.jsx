@@ -19,7 +19,34 @@ function Auth({ children }) {
         });
 
         if (!response.ok) {
-          navigate("/product");
+          // hit /refresh
+          const refreshResponse = await fetch(
+            "http://localhost:3000/users/refresh",
+            {
+              method: "GET",
+              credentials: "include",
+            }
+          );
+
+          if (!refreshResponse.ok) {
+            navigate("/product"); // Still not authenticated
+            return;
+          }
+          // Retry the original /check request with the new access token
+          const retryResponse = await fetch(
+            "http://localhost:3000/users/check",
+            {
+              method: "GET",
+              credentials: "include",
+            }
+          );
+          if (!retryResponse.ok) {
+            navigate("/product");
+            return;
+          }
+          const retryData = await retryResponse.json();
+          setIsAuth(retryData.user);
+          setIsAuthenticating(false);
           return;
         }
         const data = await response.json();
