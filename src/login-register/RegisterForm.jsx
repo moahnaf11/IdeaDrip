@@ -217,6 +217,7 @@ function RegisterForm() {
   const handleGoogleRegister = () => {
     // Implement Google registration logic here
     console.log("Google registration clicked");
+    window.location.href = `${import.meta.env.VITE_SERVER_URL}/users/google`;
   };
 
   return (

@@ -143,7 +143,10 @@ function LoginForm() {
       setErrors((prev) => {
         if (data.msg === "Incorrect email") {
           return { ...prev, email: data.msg };
-        } else if (data.msg === "Incorrect password") {
+        } else if (
+          data.msg === "Incorrect password" ||
+          data.msg.startsWith("This")
+        ) {
           return { ...prev, password: data.msg };
         }
       });
@@ -153,6 +156,8 @@ function LoginForm() {
   const handleGoogleLogin = () => {
     // Implement Google login logic here
     console.log("Google login clicked");
+    console.log("Google registration clicked");
+    window.location.href = `${import.meta.env.VITE_SERVER_URL}/users/google`;
   };
 
   return (
