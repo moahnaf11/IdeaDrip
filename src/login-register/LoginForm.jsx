@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { ImSpinner } from "react-icons/im";
@@ -111,7 +111,7 @@ function LoginForm() {
       return;
     }
 
-    // api call
+    // Api call
     setIsPending(true);
     const response = await fetch("http://localhost:3000/users/login", {
       method: "POST",
@@ -126,11 +126,9 @@ function LoginForm() {
     const data = await response.json();
     setIsPending(false);
     if (response.ok) {
-      // alert(data.msg);
-      // console.log(data.user);
       navigate("/");
     } else if (response.status === 400) {
-      setErrors((prevErrors) => {
+      setErrors(() => {
         const newErrors = data.errors.reduce((acc, error) => {
           const { path, msg } = error;
           acc[path] = msg;

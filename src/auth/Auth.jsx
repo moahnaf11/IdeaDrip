@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "./authContext";
 import { ImSpinner } from "react-icons/im";
 
@@ -65,7 +65,7 @@ function Auth({ children }) {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [navigate]);
 
   if (isAuthenticating) {
     return (

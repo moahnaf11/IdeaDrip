@@ -25,7 +25,7 @@ function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
 
     // Update form data
     const updatedFormData = {
@@ -181,7 +181,7 @@ function RegisterForm() {
       return;
     }
 
-    // api call
+    // Api call
     setIsPending(true);
     const response = await fetch("http://localhost:3000/users/register", {
       method: "POST",
@@ -196,11 +196,11 @@ function RegisterForm() {
     const data = await response.json();
     setIsPending(false);
     if (response.ok) {
-      // alert(data.msg);
+      // Alert(data.msg);
       console.log(data.user);
       navigate("/login");
     } else {
-      setErrors((prevErrors) => {
+      setErrors(() => {
         const newErrors = data.errors.reduce((acc, error) => {
           const { path, msg } = error;
           acc[path] = msg;
