@@ -12,16 +12,19 @@ function Auth({ children }) {
     const controller = new AbortController();
     const authCheck = async () => {
       try {
-        const response = await fetch("http://localhost:3000/users/check", {
-          method: "GET",
-          credentials: "include",
-          signal: controller.signal,
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_SERVER_URL}/users/check`,
+          {
+            method: "GET",
+            credentials: "include",
+            signal: controller.signal,
+          },
+        );
 
         if (!response.ok) {
           // Hit /refresh
           const refreshResponse = await fetch(
-            "http://localhost:3000/users/refresh",
+            `${import.meta.env.VITE_SERVER_URL}/users/refresh`,
             {
               method: "GET",
               credentials: "include",
@@ -34,7 +37,7 @@ function Auth({ children }) {
           }
           // Retry the original /check request with the new access token
           const retryResponse = await fetch(
-            "http://localhost:3000/users/check",
+            `${import.meta.env.VITE_SERVER_URL}/users/check`,
             {
               method: "GET",
               credentials: "include",

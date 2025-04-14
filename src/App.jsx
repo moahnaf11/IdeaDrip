@@ -226,7 +226,7 @@ function App() {
             <button
               onClick={async () => {
                 const response = await fetch(
-                  `http://localhost:3000/users/logout`,
+                  `${import.meta.env.VITE_SERVER_URL}/users/logout`,
                   {
                     mode: "cors",
                     method: "GET",

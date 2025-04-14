@@ -183,15 +183,18 @@ function RegisterForm() {
 
     // Api call
     setIsPending(true);
-    const response = await fetch("http://localhost:3000/users/register", {
-      method: "POST",
-      mode: "cors",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${import.meta.env.VITE_SERVER_URL}/users/register`,
+      {
+        method: "POST",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       },
-      body: JSON.stringify(formData),
-    });
+    );
 
     const data = await response.json();
     setIsPending(false);
