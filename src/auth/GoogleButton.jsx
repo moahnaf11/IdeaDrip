@@ -1,5 +1,3 @@
-import React from "react";
-
 const GoogleButton = ({ onClick, className = "" }) => {
   return (
     <button

@@ -19,7 +19,7 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const currentPath = location.pathname.substring(1) || "explore-ideas";
-  const [isOpen, setIsOpen] = useState(true); // sidebar open by default
+  const [isOpen, setIsOpen] = useState(true); // Sidebar open by default
   const [hoveredItem, setHoveredItem] = useState(null);
 
   const menuItems = [
@@ -234,7 +234,7 @@ function App() {
                     headers: {
                       "Content-Type": "application/json",
                     },
-                  }
+                  },
                 );
                 const data = await response.json();
                 alert(data.msg);

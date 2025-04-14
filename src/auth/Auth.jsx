@@ -19,13 +19,13 @@ function Auth({ children }) {
         });
 
         if (!response.ok) {
-          // hit /refresh
+          // Hit /refresh
           const refreshResponse = await fetch(
             "http://localhost:3000/users/refresh",
             {
               method: "GET",
               credentials: "include",
-            }
+            },
           );
 
           if (!refreshResponse.ok) {
@@ -38,7 +38,7 @@ function Auth({ children }) {
             {
               method: "GET",
               credentials: "include",
-            }
+            },
           );
           if (!retryResponse.ok) {
             navigate("/product");
@@ -77,7 +77,7 @@ function Auth({ children }) {
       </div>
     );
   } else {
-    // return <Navigate to="/product" />;
+    // Return <Navigate to="/product" />;
     return <AuthContext value={{ isAuth, setIsAuth }}>{children}</AuthContext>;
   }
 }
