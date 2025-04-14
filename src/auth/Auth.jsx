@@ -80,7 +80,6 @@ function Auth({ children }) {
       </div>
     );
   } else {
-    // Return <Navigate to="/product" />;
     return <AuthContext value={{ isAuth, setIsAuth }}>{children}</AuthContext>;
   }
 }

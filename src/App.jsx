@@ -14,9 +14,12 @@ import {
   IoMailOutline,
   IoChevronBack,
 } from "react-icons/io5";
+import { useContext } from "react";
+import { AuthContext } from "./auth/authContext";
 
 function App() {
   const navigate = useNavigate();
+  const { isAuth } = useContext(AuthContext);
   const location = useLocation();
   const currentPath = location.pathname.substring(1) || "explore-ideas";
   const [isOpen, setIsOpen] = useState(true); // Sidebar open by default
@@ -280,10 +283,13 @@ function App() {
               <IoNotificationsOutline className="w-6 h-6 text-gray-600" />
             </button>
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+              <img
+                src={isAuth?.photo}
+                className="w-8 h-8 bg-gray-300 rounded-full object-cover"
+              ></img>
               <div className="ml-2">
-                <p className="text-sm font-medium">Totok Michael</p>
-                <p className="text-xs text-gray-500">tmichael20@gmail.com</p>
+                <p className="text-sm font-medium">{isAuth?.username}</p>
+                <p className="text-xs text-gray-500">{isAuth?.email}</p>
               </div>
             </div>
           </div>
