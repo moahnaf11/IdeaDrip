@@ -6,7 +6,7 @@ import DashNav from "./DashNav";
 function Dashboard() {
   const [posts, setPosts] = useState([]);
   return (
-    <div className="bg-gray-50 min-h-screen p-6">
+    <div className="bg-gray-100 min-h-screen p-6">
       <div className="flex items-center gap-4">
         <Link to="/">Reddit</Link>
       </div>
