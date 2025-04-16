@@ -77,7 +77,7 @@ function App() {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <div className="transition-all duration-300 bg-white border-r p-6">
+      <div className="transition-all duration-300 bg-white border-r p-3 md:p-6">
         <div
           className={`flex justify-between items-center mb-8 ${
             isOpen ? "" : "flex-col-reverse"
@@ -93,7 +93,7 @@ function App() {
               IdeaDrip
             </span>
           </div>
-          <button className="hover:bg-gray-100 p-2 rounded-lg transition-all duration-200">
+          <button className="hover:bg-gray-100 hidden md:block p-2 rounded-lg transition-all duration-200">
             <IoChevronBack
               onClick={() => setIsOpen((prev) => !prev)}
               className={`transition-all duration-200 size-6 hidden md:block ${

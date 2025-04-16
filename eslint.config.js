@@ -26,13 +26,13 @@ export default [
     },
     rules: {
       ...js.configs.recommended.rules,
-      "capitalized-comments": [
-        "error",
-        "always",
-        {
-          ignorePattern: "pragma|ignored",
-        },
-      ],
+      // "capitalized-comments": [
+      //   "error",
+      //   "always",
+      //   {
+      //     ignorePattern: "pragma|ignored",
+      //   },
+      // ],
       ...react.configs.recommended.rules,
       "react/prop-types": "off",
       "react/no-unescaped-entities": ["error", { forbid: [">", "<", "}"] }],

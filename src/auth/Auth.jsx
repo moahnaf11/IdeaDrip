@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "./authContext";
 import { ImSpinner } from "react-icons/im";
 
@@ -7,6 +7,7 @@ function Auth({ children }) {
   const navigate = useNavigate();
   const [isAuth, setIsAuth] = useState(null);
   const [isAuthenticating, setIsAuthenticating] = useState(true);
+  const location = useLocation();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -28,6 +29,7 @@ function Auth({ children }) {
             {
               method: "GET",
               credentials: "include",
+              signal: controller.signal,
             },
           );
 
@@ -41,6 +43,7 @@ function Auth({ children }) {
             {
               method: "GET",
               credentials: "include",
+              signal: controller.signal,
             },
           );
           if (!retryResponse.ok) {
@@ -48,12 +51,24 @@ function Auth({ children }) {
             return;
           }
           const retryData = await retryResponse.json();
-          setIsAuth(retryData.user);
+          setIsAuth((prev) => {
+            if (!prev) {
+              return retryData.user;
+            }
+            return prev;
+          });
           setIsAuthenticating(false);
           return;
         }
         const data = await response.json();
-        setIsAuth(data.user);
+
+        setIsAuth((prev) => {
+          if (!prev) {
+            return data.user;
+          }
+          return prev;
+        });
+
         setIsAuthenticating(false);
       } catch (err) {
         if (err.name === "AbortError") {
@@ -68,7 +83,7 @@ function Auth({ children }) {
     return () => {
       controller.abort();
     };
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   if (isAuthenticating) {
     return (
