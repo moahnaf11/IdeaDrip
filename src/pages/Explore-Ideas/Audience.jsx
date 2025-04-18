@@ -13,9 +13,11 @@ function Audience() {
   const [subreddits, setSubreddits] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [selectedSubreddits, setSelectedSubreddits] = useState([]);
+  const [title, setTitle] = useState("");
   const [isNewOpen, setIsNewOpen] = useState(true);
   const [isPopularOpen, setIsPopularOpen] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [audience, setAudience] = useState([]);
 
   useEffect(() => {
     if (searchTerm) return;
@@ -53,18 +55,38 @@ function Audience() {
     };
   }, [searchTerm]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    const getAudiences = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/audience`, {
+          method: "GET",
+          credentials: "include",
+          signal: controller.signal,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          console.log("no audiences", data?.msg);
+          return;
+        }
+        setAudience(data);
+      } catch (err) {
+        console.log("failed in useeffect to fetch all audiences", err);
+      }
+    };
+
+    getAudiences();
+
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
   const toggleNew = () => setIsNewOpen((prev) => !prev);
   const togglePopular = () => setIsPopularOpen((prev) => !prev);
-
-  // const allSubreddits = searchTerm
-  //   ? [
-  //       {
-  //         popular: [],
-  //         new: [],
-  //       },
-  //     ]
-  //   : Object.values(subreddits).flat();
-  // console.log(allSubreddits);
 
   const filteredSubreddits = subreddits.filter(
     (subreddit) =>
@@ -80,10 +102,33 @@ function Audience() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Here you could do something with the selected subreddits
     console.log("Selected subreddits:", selectedSubreddits);
+    console.log("title", title);
     setIsDialogOpen(false);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/audience`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          subreddits: selectedSubreddits,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        console.log("Audience saved!", data);
+      } else {
+        console.log("Failed to save audience", data);
+      }
+    } catch (err) {
+      console.log("failed in fetch request", err);
+    }
   };
 
   // search subreddits
@@ -108,9 +153,9 @@ function Audience() {
   };
 
   return (
-    <div className="min-h-screen text-sm lg:text-[16px] bg-gray-100 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen text-sm lg:text-[16px] bg-gray-100">
       {/* Button to open dialog */}
-      <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md">
+      {/* <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md">
         <div className="flex items-center mb-4">
           <FaReddit className="text-red-500 text-3xl mr-2" />
           <h1 className="font-bold text-gray-800">Reddit Preferences</h1>
@@ -129,7 +174,36 @@ function Audience() {
             ? `Edit Selected Subreddits (${selectedSubreddits.length})`
             : "Select Subreddits"}
         </button>
+      </div> */}
+      <div className="flex justify-between items-center">
+        <h2>Your Target Communities</h2>
+        <button
+          onClick={() => setIsDialogOpen(true)}
+          className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"
+        >
+          <FaReddit className="mr-2" />
+          {selectedSubreddits.length > 0
+            ? `Edit Selected Subreddits (${selectedSubreddits.length})`
+            : "Select Subreddits"}
+        </button>
       </div>
+      {/* audiences */}
+      {audience.length === 0 ? (
+        <p className="text-gray-500">No audiences found.</p>
+      ) : (
+        audience.map((item) => (
+          <div key={item.id} className="p-4 border rounded shadow-sm bg-white">
+            <h3 className="font-semibold text-lg text-gray-800">
+              {item.title}
+            </h3>
+            <p className="text-sm text-gray-600">
+              {item.subreddits.length > 0
+                ? item.subreddits.join(", ")
+                : "No subreddits selected."}
+            </p>
+          </div>
+        ))
+      )}
 
       {/* Dialog */}
       {isDialogOpen && (
@@ -152,6 +226,19 @@ function Audience() {
                 </button>
               </div>
               <p className="text-gray-600 mt-1">Choose subreddits to follow</p>
+            </div>
+
+            {/* title box */}
+            <div className="p-4 border-b border-gray-200 flex items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Set Audience Name"
+                  className="w-full p-2 px-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
             </div>
 
             {/* Search Box */}
