@@ -19,9 +19,11 @@ function Audience() {
   const [isPopularOpen, setIsPopularOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [audience, setAudience] = useState([]);
+  const [isedit, setIsedit] = useState(false);
+  const [editingAudienceId, setEditingAudienceId] = useState(null);
 
   useEffect(() => {
-    if (searchTerm) return;
+    if (searchTerm || isedit) return;
     setHasSearched(false);
     setLoading(true);
     const controller = new AbortController();
@@ -54,7 +56,7 @@ function Audience() {
     return () => {
       controller.abort();
     };
-  }, [searchTerm]);
+  }, [searchTerm, isedit]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -108,28 +110,72 @@ function Audience() {
     console.log("Selected subreddits:", selectedSubreddits);
     console.log("title", title);
     setIsDialogOpen(false);
-    try {
-      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/audience`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title,
-          subreddits: selectedSubreddits,
-        }),
-      });
+    setIsedit(false);
+    if (!isedit) {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/audience`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title,
+            subreddits: selectedSubreddits,
+            searchTerm,
+          }),
+        });
 
-      const data = await res.json();
-      if (res.ok) {
-        console.log("Audience saved!", data);
-        setAudience((prev) => [...prev, data]);
-      } else {
-        console.log("Failed to save audience", data);
+        const data = await res.json();
+        if (res.ok) {
+          console.log("Audience saved!", data);
+          setAudience((prev) => [...prev, data]);
+          setTitle("");
+          setSearchTerm("");
+          setSelectedSubreddits([]);
+        } else {
+          console.log("Failed to save audience", data);
+        }
+      } catch (err) {
+        console.log("failed in fetch request", err);
       }
-    } catch (err) {
-      console.log("failed in fetch request", err);
+    } else {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SERVER_URL}/audience/${editingAudienceId}`,
+          {
+            method: "PUT",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              title,
+              subreddits: selectedSubreddits,
+            }),
+          },
+        );
+
+        const data = await res.json();
+        if (res.ok) {
+          console.log("Audience edited!", data);
+          setAudience((prev) =>
+            prev.map((aud) => {
+              if (aud.id === data.id) {
+                return data;
+              }
+              return aud;
+            }),
+          );
+          setTitle("");
+          setSearchTerm("");
+          setSelectedSubreddits([]);
+        } else {
+          console.log("Failed to edit audience", data);
+        }
+      } catch (err) {
+        console.log("failed in fetch request", err);
+      }
     }
   };
 
@@ -163,9 +209,7 @@ function Audience() {
           className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"
         >
           <FaReddit className="mr-2" />
-          {selectedSubreddits.length > 0
-            ? `Edit Selected Subreddits (${selectedSubreddits.length})`
-            : "Select Subreddits"}
+          Select Subreddits
         </button>
       </div>
       {/* audiences */}
@@ -173,7 +217,20 @@ function Audience() {
         {audience.length === 0 ? (
           <p className="text-gray-500">No audiences found.</p>
         ) : (
-          audience.map((item) => <AudienceCard key={item.id} item={item} />)
+          audience.map((item) => (
+            <AudienceCard
+              key={item.id}
+              item={item}
+              setAudience={setAudience}
+              setIsDialogOpen={setIsDialogOpen}
+              setTitle={setTitle}
+              setSelectedSubreddits={setSelectedSubreddits}
+              setSearchTerm={setSearchTerm}
+              setIsedit={setIsedit}
+              setLoading={setLoading}
+              setEditingAudienceId={setEditingAudienceId}
+            />
+          ))
         )}
       </div>
 
@@ -187,11 +244,17 @@ function Audience() {
                 <div className="flex items-center">
                   <FaReddit className="text-red-500 text-2xl mr-2" />
                   <h2 className="text-xl font-semibold text-gray-800">
-                    Select Subreddits
+                    {isedit ? "Edit Subreddits" : "Select Subreddits"}
                   </h2>
                 </div>
                 <button
-                  onClick={() => setIsDialogOpen(false)}
+                  onClick={() => {
+                    setIsedit(false);
+                    setIsDialogOpen(false);
+                    setTitle("");
+                    setSearchTerm("");
+                    setSelectedSubreddits([]);
+                  }}
                   className="text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   <FaTimes className="text-xl" />
@@ -222,7 +285,10 @@ function Audience() {
                   placeholder="Search subreddits..."
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={(e) => {
+                    setLoading(false);
+                    setSearchTerm(e.target.value);
+                  }}
                 />
               </div>
               <button
@@ -238,7 +304,7 @@ function Audience() {
             {filteredSubreddits.length > 0 && !loading ? (
               <div className="overflow-y-auto flex flex-col flex-1">
                 {/* Popular Subreddits */}
-                {!hasSearched && (
+                {!hasSearched && !isedit && (
                   <>
                     <button
                       onClick={togglePopular}
@@ -395,7 +461,13 @@ function Audience() {
             {/* Dialog Footer */}
             <div className="p-4 border-t border-gray-200 flex justify-end space-x-2">
               <button
-                onClick={() => setIsDialogOpen(false)}
+                onClick={() => {
+                  setIsDialogOpen(false);
+                  setIsedit(false);
+                  setTitle("");
+                  setSearchTerm("");
+                  setSelectedSubreddits([]);
+                }}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
               >
                 Cancel

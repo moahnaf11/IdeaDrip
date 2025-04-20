@@ -2,6 +2,7 @@ import FilterBar from "./FilterBar";
 import DashNav from "./DashNav";
 import { useEffect, useState } from "react";
 import { Link, Outlet, useParams } from "react-router-dom";
+import { IoIosArrowBack } from "react-icons/io";
 function AudienceLayout() {
   const [posts, setPosts] = useState([]);
   const [singleAudience, setSingleAudience] = useState(null);
@@ -41,7 +42,11 @@ function AudienceLayout() {
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
-      <Link to="/">Back</Link>
+      <Link to="/" className="flex items-center gap-2">
+        {" "}
+        <IoIosArrowBack />
+        Back
+      </Link>
       <FilterBar posts={posts} setPosts={setPosts} />
       <DashNav />
       {singleAudience && (

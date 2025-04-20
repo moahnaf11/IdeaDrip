@@ -1,18 +1,65 @@
 import { useEffect, useRef, useState } from "react";
-import { FaTag } from "react-icons/fa";
+import { FaTag, FaTimes, FaRegEdit } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-function AudienceCard({ item }) {
+function AudienceCard({
+  item,
+  setAudience,
+  setIsDialogOpen,
+  setTitle,
+  setSelectedSubreddits,
+  setIsedit,
+  setSearchTerm,
+  setLoading,
+  setEditingAudienceId,
+}) {
   const [expanded, setExpanded] = useState(false);
   const containerRef = useRef(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const maxHeight = 40;
 
+  console.log("aud card", item);
+
   useEffect(() => {
     if (containerRef.current) {
       setIsOverflowing(containerRef.current.scrollHeight > maxHeight);
     }
-  }, []);
+  }, [item]);
+
+  const handleEditAudience = (audienceItem) => {
+    setIsDialogOpen(true);
+    setTitle(audienceItem.title);
+    setSelectedSubreddits(audienceItem.subreddits || []);
+    setSearchTerm(audienceItem.searchTerm);
+    setIsedit(true);
+    setEditingAudienceId(audienceItem.id);
+    setLoading(false);
+  };
+
+  const deleteAudience = async (id) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SERVER_URL}/audience/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      const data = await res.json();
+      if (res.ok) {
+        console.log("Audience deleted!", data);
+        setAudience((prev) => prev.filter((aud) => aud.id !== id));
+      } else {
+        console.log("Failed to delete audience", data);
+      }
+    } catch (err) {
+      console.log("failed in fetch request", err);
+    }
+  };
   return (
     <>
       <Link
@@ -21,7 +68,29 @@ function AudienceCard({ item }) {
       >
         <div className="flex items-center gap-2 mb-2">
           <FaTag className="w-4 h-4 text-purple-600" />
-          <h3 className="font-semibold text-lg text-gray-800">{item.title}</h3>
+          <h3 className="font-semibold max-h-[28px] text-gray-800 truncate">
+            {item.title}
+          </h3>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleEditAudience(item);
+            }}
+            className="text-gray-500 ml-auto hover:text-gray-700 transition-colors"
+          >
+            <FaRegEdit />
+          </button>
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              deleteAudience(item.id);
+            }}
+            className="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <FaTimes />
+          </button>
         </div>
 
         {item.subreddits.length === 0 ? (

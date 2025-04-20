@@ -10,9 +10,6 @@ import LoginForm from "./login-register/LoginForm.jsx";
 import RegisterForm from "./login-register/RegisterForm.jsx";
 import RedditHot from "./pages/Explore-Ideas/AudienceChildren/RedditHot.jsx";
 import RedditNew from "./pages/Explore-Ideas/AudienceChildren/RedditNew.jsx";
-import RedditTop from "./pages/Explore-Ideas/AudienceChildren/RedditTop.jsx";
-import RedditRising from "./pages/Explore-Ideas/AudienceChildren/RedditRising.jsx";
-import RedditControversial from "./pages/Explore-Ideas/AudienceChildren/RedditControversial.jsx";
 import Audience from "./pages/Explore-Ideas/Audience.jsx";
 import AudienceLayout from "./pages/Explore-Ideas/AudienceLayout.jsx";
 
@@ -35,9 +32,6 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <RedditHot /> },
           { path: "new", element: <RedditNew /> },
-          { path: "top", element: <RedditTop /> },
-          { path: "rising", element: <RedditRising /> },
-          { path: "controversial", element: <RedditControversial /> },
         ],
       },
 
