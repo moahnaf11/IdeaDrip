@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App.jsx";
 import "./index.css";
-import Dashboard from "./pages/Explore-Ideas/Dashboard.jsx";
 import FAQ from "./pages/FAQ.jsx";
 import LandingPage from "./pages/LandingPage.jsx";
 import Auth from "./auth/Auth.jsx";
@@ -15,6 +14,7 @@ import RedditTop from "./pages/Explore-Ideas/AudienceChildren/RedditTop.jsx";
 import RedditRising from "./pages/Explore-Ideas/AudienceChildren/RedditRising.jsx";
 import RedditControversial from "./pages/Explore-Ideas/AudienceChildren/RedditControversial.jsx";
 import Audience from "./pages/Explore-Ideas/Audience.jsx";
+import AudienceLayout from "./pages/Explore-Ideas/AudienceLayout.jsx";
 
 const router = createBrowserRouter([
   {
@@ -27,26 +27,17 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <Dashboard />,
+        element: <Audience />,
+      },
+      {
+        path: ":audienceId",
+        element: <AudienceLayout />,
         children: [
-          { path: "/", element: <Audience /> },
-          { path: "/hot", element: <RedditHot /> },
-          {
-            path: "new",
-            element: <RedditNew />,
-          },
-          {
-            path: "top",
-            element: <RedditTop />,
-          },
-          {
-            path: "rising",
-            element: <RedditRising />,
-          },
-          {
-            path: "controversial",
-            element: <RedditControversial />,
-          },
+          { index: true, element: <RedditHot /> },
+          { path: "new", element: <RedditNew /> },
+          { path: "top", element: <RedditTop /> },
+          { path: "rising", element: <RedditRising /> },
+          { path: "controversial", element: <RedditControversial /> },
         ],
       },
 

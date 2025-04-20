@@ -7,6 +7,7 @@ import {
   FaChevronDown,
 } from "react-icons/fa";
 import { ImSpinner } from "react-icons/im";
+import AudienceCard from "./AudienceCard.jsx";
 function Audience() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -123,6 +124,7 @@ function Audience() {
       const data = await res.json();
       if (res.ok) {
         console.log("Audience saved!", data);
+        setAudience((prev) => [...prev, data]);
       } else {
         console.log("Failed to save audience", data);
       }
@@ -153,28 +155,7 @@ function Audience() {
   };
 
   return (
-    <div className="min-h-screen text-sm lg:text-[16px] bg-gray-100">
-      {/* Button to open dialog */}
-      {/* <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md">
-        <div className="flex items-center mb-4">
-          <FaReddit className="text-red-500 text-3xl mr-2" />
-          <h1 className="font-bold text-gray-800">Reddit Preferences</h1>
-        </div>
-
-        <p className="text-gray-600 mb-6">
-          Select subreddits to personalize your feed
-        </p>
-
-        <button
-          onClick={() => setIsDialogOpen(true)}
-          className="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"
-        >
-          <FaReddit className="mr-2" />
-          {selectedSubreddits.length > 0
-            ? `Edit Selected Subreddits (${selectedSubreddits.length})`
-            : "Select Subreddits"}
-        </button>
-      </div> */}
+    <div className="min-h-screen text-sm lg:text-[16px] bg-gray-100 p-6">
       <div className="flex justify-between items-center">
         <h2>Your Target Communities</h2>
         <button
@@ -188,22 +169,13 @@ function Audience() {
         </button>
       </div>
       {/* audiences */}
-      {audience.length === 0 ? (
-        <p className="text-gray-500">No audiences found.</p>
-      ) : (
-        audience.map((item) => (
-          <div key={item.id} className="p-4 border rounded shadow-sm bg-white">
-            <h3 className="font-semibold text-lg text-gray-800">
-              {item.title}
-            </h3>
-            <p className="text-sm text-gray-600">
-              {item.subreddits.length > 0
-                ? item.subreddits.join(", ")
-                : "No subreddits selected."}
-            </p>
-          </div>
-        ))
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {audience.length === 0 ? (
+          <p className="text-gray-500">No audiences found.</p>
+        ) : (
+          audience.map((item) => <AudienceCard key={item.id} item={item} />)
+        )}
+      </div>
 
       {/* Dialog */}
       {isDialogOpen && (

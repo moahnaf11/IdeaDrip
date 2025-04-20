@@ -5,14 +5,16 @@ import {
   FaArrowUp,
   FaExclamationTriangle,
 } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 function DashNav() {
+  const { audienceId } = useParams();
   return (
     <>
       {/* navbar for hot, new etc */}
       <nav className="bg-gray-100 p-2 flex lg:flex-row lg:items-center flex-col gap-2 overflow-x-auto max-w-fit">
         <NavLink
-          to="/"
+          end
+          to={`/${audienceId}`}
           className={({ isActive }) =>
             `flex items-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
               isActive
@@ -30,7 +32,7 @@ function DashNav() {
         </NavLink>
 
         <NavLink
-          to="/new"
+          to={`/${audienceId}/new`}
           className={({ isActive }) =>
             `flex items-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
               isActive
@@ -48,7 +50,7 @@ function DashNav() {
         </NavLink>
 
         <NavLink
-          to="/top"
+          to={`/${audienceId}/top`}
           className={({ isActive }) =>
             `flex items-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
               isActive
@@ -66,7 +68,7 @@ function DashNav() {
         </NavLink>
 
         <NavLink
-          to="/rising"
+          to={`/${audienceId}/rising`}
           className={({ isActive }) =>
             `flex items-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
               isActive
@@ -84,7 +86,7 @@ function DashNav() {
         </NavLink>
 
         <NavLink
-          to="/controversial"
+          to={`/${audienceId}/controversial`}
           className={({ isActive }) =>
             `flex items-center gap-2 py-2 px-4 rounded-full text-sm font-medium transition-colors ${
               isActive
