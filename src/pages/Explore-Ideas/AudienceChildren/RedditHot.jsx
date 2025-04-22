@@ -8,6 +8,8 @@ import { ImSpinner } from "react-icons/im";
 function RedditHot() {
   const { posts, setPosts, singleAudience } = useOutletContext();
   const [loading, setLoading] = useState(false);
+  console.log("singleaud", singleAudience);
+  console.log("posts", posts);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -59,7 +61,7 @@ function RedditHot() {
               {/* Tags like subreddit and flair */}
               <div className="flex flex-wrap gap-2 mb-4">
                 <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
-                  r/{post.subreddit}
+                  r/{post.subreddit.name}
                 </span>
                 {post.flair && (
                   <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">

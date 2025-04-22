@@ -18,8 +18,6 @@ function AudienceCard({
   const [isOverflowing, setIsOverflowing] = useState(false);
   const maxHeight = 40;
 
-  console.log("aud card", item);
-
   useEffect(() => {
     if (containerRef.current) {
       setIsOverflowing(containerRef.current.scrollHeight > maxHeight);
@@ -111,7 +109,7 @@ function AudienceCard({
                   key={index}
                   className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100 transition-all hover:bg-purple-100"
                 >
-                  {subreddit}
+                  {subreddit.name}
                 </span>
               ))}
             </div>

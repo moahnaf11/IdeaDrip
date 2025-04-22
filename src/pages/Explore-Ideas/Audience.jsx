@@ -1,62 +1,19 @@
 import { useEffect, useState } from "react";
-import {
-  FaReddit,
-  FaSearch,
-  FaCheck,
-  FaTimes,
-  FaChevronDown,
-} from "react-icons/fa";
+import { FaReddit, FaSearch, FaCheck, FaTimes } from "react-icons/fa";
 import { ImSpinner } from "react-icons/im";
 import AudienceCard from "./AudienceCard.jsx";
 function Audience() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [subreddits, setSubreddits] = useState([]);
-  const [hasSearched, setHasSearched] = useState(false);
   const [selectedSubreddits, setSelectedSubreddits] = useState([]);
   const [title, setTitle] = useState("");
-  const [isNewOpen, setIsNewOpen] = useState(true);
-  const [isPopularOpen, setIsPopularOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [audience, setAudience] = useState([]);
   const [isedit, setIsedit] = useState(false);
   const [editingAudienceId, setEditingAudienceId] = useState(null);
-
-  useEffect(() => {
-    if (searchTerm || isedit) return;
-    setHasSearched(false);
-    setLoading(true);
-    const controller = new AbortController();
-    const fetchSubreddits = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_SERVER_URL}/api/reddit/reddit-subreddits`,
-          {
-            mode: "cors",
-            method: "GET",
-            credentials: "include",
-            signal: controller.signal,
-          },
-        );
-        if (!response.ok) {
-          setLoading(false);
-          console.log("response failed");
-          return;
-        }
-        const data = await response.json();
-        setLoading(false);
-        console.log(data);
-        setSubreddits([...data.popular, ...data.new]);
-      } catch (err) {
-        console.log("Failed in fetch posts", err);
-      }
-    };
-
-    fetchSubreddits();
-    return () => {
-      controller.abort();
-    };
-  }, [searchTerm, isedit]);
+  const [result, setResult] = useState(true);
+  const [showSelectedOnly, setShowSelectedOnly] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -88,28 +45,27 @@ function Audience() {
     };
   }, []);
 
-  const toggleNew = () => setIsNewOpen((prev) => !prev);
-  const togglePopular = () => setIsPopularOpen((prev) => !prev);
-
   const filteredSubreddits = subreddits.filter(
     (subreddit) =>
       subreddit.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       subreddit.description?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const toggleSubreddit = (id) => {
-    if (selectedSubreddits.includes(id)) {
-      setSelectedSubreddits(selectedSubreddits.filter((subId) => subId !== id));
-    } else {
-      setSelectedSubreddits([...selectedSubreddits, id]);
-    }
+  const toggleSubreddit = (subreddit) => {
+    setSelectedSubreddits((prev) =>
+      prev.some((s) => s.name === subreddit.name)
+        ? prev.filter((s) => s.name !== subreddit.name)
+        : [...prev, subreddit],
+    );
   };
 
   const handleSave = async () => {
-    // Here you could do something with the selected subreddits
     console.log("Selected subreddits:", selectedSubreddits);
     console.log("title", title);
     setIsDialogOpen(false);
+    setShowSelectedOnly(false);
+    setResult(true);
+    setSubreddits([]);
     setIsedit(false);
     if (!isedit) {
       try {
@@ -184,16 +140,22 @@ function Audience() {
     if (!searchTerm.trim()) return;
 
     try {
+      setResult(true);
+      setLoading(true);
       const response = await fetch(
         `${import.meta.env.VITE_SERVER_URL}/api/reddit/reddit-specific-subreddit?q=${searchTerm.trim()}`,
       );
       if (!response.ok) {
         console.log("response failed");
+        setResult(false);
         return;
       }
       const data = await response.json();
       setSubreddits(data);
-      setHasSearched(true);
+      setLoading(false);
+      if (!data.length) {
+        setResult(false);
+      }
       console.log("Search results:", data);
     } catch (error) {
       console.error("Search error:", error);
@@ -251,6 +213,9 @@ function Audience() {
                   onClick={() => {
                     setIsedit(false);
                     setIsDialogOpen(false);
+                    setShowSelectedOnly(false);
+                    setResult(true);
+                    setSubreddits([]);
                     setTitle("");
                     setSearchTerm("");
                     setSelectedSubreddits([]);
@@ -300,124 +265,69 @@ function Audience() {
               </button>
             </div>
 
+            <button
+              onClick={() => setShowSelectedOnly(!showSelectedOnly)}
+              className={`p-2 rounded-md ${showSelectedOnly ? "bg-blue-100 text-blue-600" : "text-gray-600 hover:bg-gray-100"}`}
+            >
+              {showSelectedOnly ? "Show All" : "Show Selected Only"}
+            </button>
+
             {/* Subreddit List */}
-            {filteredSubreddits.length > 0 && !loading ? (
+            {((!showSelectedOnly && filteredSubreddits.length > 0) ||
+              (showSelectedOnly && selectedSubreddits.length > 0)) &&
+            !loading ? (
               <div className="overflow-y-auto flex flex-col flex-1">
-                {/* Popular Subreddits */}
-                {!hasSearched && !isedit && (
-                  <>
-                    <button
-                      onClick={togglePopular}
-                      className="text-lg flex items-center justify-between font-semibold px-4 py-2 bg-gray-100 border-b"
-                    >
-                      Popular Subreddits
-                      <FaChevronDown
-                        className={`${isPopularOpen ? "rotate-180" : ""}`}
-                      />
-                    </button>
-                    {isPopularOpen &&
-                      filteredSubreddits.slice(0, 100).map((subreddit) => (
-                        <div
-                          key={subreddit.name}
-                          className={`p-4 border-b border-gray-200 flex items-center hover:bg-gray-50 cursor-pointer ${
-                            selectedSubreddits.includes(subreddit.name)
-                              ? "bg-blue-50"
-                              : ""
-                          }`}
-                          onClick={() => toggleSubreddit(subreddit.name)}
-                        >
-                          <div className="mr-3">
-                            {subreddit.icon ? (
-                              <img
-                                src={subreddit.icon}
-                                alt="icon"
-                                className="w-6 h-6 rounded-full"
-                              />
-                            ) : (
-                              <div className="w-6 h-6 bg-gray-200 rounded-full" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-medium text-gray-800">
-                              {subreddit.title}
-                            </h3>
-                            <p className="text-sm text-gray-600">{`r/${subreddit.name}`}</p>
-                          </div>
-                          <div className="ml-2">
-                            {selectedSubreddits.includes(subreddit.name) ? (
-                              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                                <FaCheck className="text-white text-xs" />
-                              </div>
-                            ) : (
-                              <div className="w-6 h-6 border-2 border-gray-300 rounded-full" />
-                            )}
+                {showSelectedOnly ? (
+                  /* Selected Subreddits Only View */
+                  selectedSubreddits.length > 0 ? (
+                    selectedSubreddits.map((subreddit) => (
+                      <div
+                        key={subreddit.name}
+                        className="p-4 border-b border-gray-200 flex items-center bg-blue-50 cursor-pointer"
+                        onClick={() => toggleSubreddit(subreddit)}
+                      >
+                        <div className="mr-3">
+                          {subreddit.icon ? (
+                            <img
+                              src={subreddit.icon}
+                              alt="icon"
+                              className="w-6 h-6 rounded-full"
+                            />
+                          ) : (
+                            <div className="w-6 h-6 bg-gray-200 rounded-full" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-800">
+                            {subreddit.title}
+                          </h3>
+                          <p className="text-sm text-gray-600">{`r/${subreddit.name}`}</p>
+                        </div>
+                        <div className="ml-2">
+                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                            <FaCheck className="text-white text-xs" />
                           </div>
                         </div>
-                      ))}
-
-                    {/* New Subreddits */}
-                    <button
-                      onClick={toggleNew}
-                      className="text-lg flex items-center justify-between font-semibold px-4 py-2 bg-gray-100 border-b mt-4"
-                    >
-                      New Subreddits
-                      <FaChevronDown
-                        className={`${isNewOpen ? "rotate-180" : ""}`}
-                      />
-                    </button>
-                    {isNewOpen &&
-                      filteredSubreddits.slice(100, 200).map((subreddit) => (
-                        <div
-                          key={subreddit.name}
-                          className={`p-4 border-b border-gray-200 flex items-center hover:bg-gray-50 cursor-pointer ${
-                            selectedSubreddits.includes(subreddit.name)
-                              ? "bg-blue-50"
-                              : ""
-                          }`}
-                          onClick={() => toggleSubreddit(subreddit.name)}
-                        >
-                          <div className="mr-3">
-                            {subreddit.icon ? (
-                              <img
-                                src={subreddit.icon}
-                                alt="icon"
-                                className="w-6 h-6 rounded-full"
-                              />
-                            ) : (
-                              <div className="w-6 h-6 bg-gray-200 rounded-full" />
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-medium text-gray-800">
-                              {subreddit.title}
-                            </h3>
-                            <p className="text-sm text-gray-600">{`r/${subreddit.name}`}</p>
-                          </div>
-                          <div className="ml-2">
-                            {selectedSubreddits.includes(subreddit.name) ? (
-                              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                                <FaCheck className="text-white text-xs" />
-                              </div>
-                            ) : (
-                              <div className="w-6 h-6 border-2 border-gray-300 rounded-full" />
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                  </>
-                )}
-
-                {/* Filtered Subreddits (Search Results) */}
-                {hasSearched &&
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-gray-500">
+                      No subreddits selected
+                    </div>
+                  )
+                ) : (
+                  /* Full Subreddits List View */
                   filteredSubreddits.map((subreddit) => (
                     <div
                       key={subreddit.name}
                       className={`p-4 border-b border-gray-200 flex items-center hover:bg-gray-50 cursor-pointer ${
-                        selectedSubreddits.includes(subreddit.name)
+                        selectedSubreddits.some(
+                          (s) => s.name === subreddit.name,
+                        )
                           ? "bg-blue-50"
                           : ""
                       }`}
-                      onClick={() => toggleSubreddit(subreddit.name)}
+                      onClick={() => toggleSubreddit(subreddit)}
                     >
                       <div className="mr-3">
                         {subreddit.icon ? (
@@ -437,7 +347,9 @@ function Audience() {
                         <p className="text-sm text-gray-600">{`r/${subreddit.name}`}</p>
                       </div>
                       <div className="ml-2">
-                        {selectedSubreddits.includes(subreddit.name) ? (
+                        {selectedSubreddits.some(
+                          (s) => s.name === subreddit.name,
+                        ) ? (
                           <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                             <FaCheck className="text-white text-xs" />
                           </div>
@@ -446,15 +358,13 @@ function Audience() {
                         )}
                       </div>
                     </div>
-                  ))}
+                  ))
+                )}
               </div>
             ) : (
               <div className="p-4 text-center flex items-center justify-center text-gray-500">
-                {loading ? (
-                  <ImSpinner className="animate-spin size-8" />
-                ) : (
-                  `No subreddits found matching ${searchTerm}`
-                )}
+                {loading && <ImSpinner className="animate-spin size-8" />}
+                {!result && <div>No subreddits found</div>}
               </div>
             )}
 
@@ -463,6 +373,9 @@ function Audience() {
               <button
                 onClick={() => {
                   setIsDialogOpen(false);
+                  setShowSelectedOnly(false);
+                  setResult(true);
+                  setSubreddits([]);
                   setIsedit(false);
                   setTitle("");
                   setSearchTerm("");
