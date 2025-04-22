@@ -1,7 +1,7 @@
 const fetchPosts = async (
   sort = "hot",
   controller,
-  setPosts,
+  setAllPosts,
   subreddits,
   setLoading,
 ) => {
@@ -25,7 +25,7 @@ const fetchPosts = async (
       return;
     }
     const data = await response.json();
-    setPosts(data);
+    setAllPosts(data);
     setLoading(false);
   } catch (err) {
     console.log("Failed in fetch posts", err);

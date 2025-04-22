@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { FaComments, FaChevronDown, FaCheck } from "react-icons/fa";
 import { BiUpvote } from "react-icons/bi";
 
-function FilterBar({ posts, setPosts }) {
+function FilterBar({ sortPosts, sortOption }) {
   const filterBar = useRef(null);
-  const [sortOption, setSortOption] = useState("");
+
   const [activeDropdown, setActiveDropdown] = useState(null);
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -29,27 +29,6 @@ function FilterBar({ posts, setPosts }) {
     }
   };
 
-  // Sort posts
-  const sortPosts = (option) => {
-    setSortOption(option);
-
-    const sorted = [...posts].sort((a, b) => {
-      switch (option) {
-        case "upvotes-desc":
-          return b.upvotes - a.upvotes;
-        case "upvotes-asc":
-          return a.upvotes - b.upvotes;
-        case "comments-desc":
-          return b.comments - a.comments;
-        case "comments-asc":
-          return a.comments - b.comments;
-        default:
-          return 0;
-      }
-    });
-
-    setPosts(sorted);
-  };
   return (
     <div
       ref={filterBar}
