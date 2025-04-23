@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-// import { FaReddit } from "react-icons/fa";
-
 import { useOutletContext } from "react-router-dom";
 import fetchPosts from "../fetchPosts";
 import { ImSpinner } from "react-icons/im";
+import PostDetail from "../PostDetail";
 
 function RedditHot() {
   const { posts, singleAudience, query, setAllPosts } = useOutletContext();
   const [loading, setLoading] = useState(false);
+  const [post, setPost] = useState(null);
+  const [open, setOpen] = useState(false);
+  console.log(post, "post");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -42,6 +44,10 @@ function RedditHot() {
             )
             .map((post, index) => (
               <div
+                onClick={() => {
+                  setPost(post);
+                  setOpen(true);
+                }}
                 key={index}
                 className="bg-white rounded-xl shadow-sm p-5 flex flex-col transition-all duration-200 hover:shadow-md hover:scale-[1.01] hover:border-gray-300 border border-transparent"
               >
@@ -49,6 +55,10 @@ function RedditHot() {
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-gray-800">
                     <a
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
                       href={post.url}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -138,6 +148,14 @@ function RedditHot() {
               </div>
             ))}
         </div>
+      )}
+      {post && (
+        <PostDetail
+          post={post}
+          open={open}
+          setOpen={setOpen}
+          setPost={setPost}
+        />
       )}
     </>
   );

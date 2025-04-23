@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import fetchPosts from "../fetchPosts";
 import { ImSpinner } from "react-icons/im";
+import PostDetail from "../PostDetail";
 
 function RedditNew() {
   const { posts, singleAudience, query, setAllPosts } = useOutletContext();
   const [loading, setLoading] = useState(false);
+  const [post, setPost] = useState(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -38,6 +41,10 @@ function RedditNew() {
             )
             .map((post, index) => (
               <div
+                onClick={() => {
+                  setPost(post);
+                  setOpen(true);
+                }}
                 key={index}
                 className="bg-white rounded-xl shadow-sm p-5 flex flex-col transition-all duration-200 hover:shadow-md hover:scale-[1.01] hover:border-gray-300 border border-transparent"
               >
@@ -45,6 +52,10 @@ function RedditNew() {
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-gray-800">
                     <a
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
                       href={post.url}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -134,6 +145,14 @@ function RedditNew() {
               </div>
             ))}
         </div>
+      )}
+      {post && (
+        <PostDetail
+          post={post}
+          open={open}
+          setOpen={setOpen}
+          setPost={setPost}
+        />
       )}
     </>
   );
