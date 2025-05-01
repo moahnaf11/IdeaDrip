@@ -57,7 +57,6 @@ function RedditHot() {
                     <a
                       onClick={(e) => {
                         e.stopPropagation();
-                        e.preventDefault();
                       }}
                       href={post.url}
                       target="_blank"

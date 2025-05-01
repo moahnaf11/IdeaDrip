@@ -54,7 +54,6 @@ function RedditNew() {
                     <a
                       onClick={(e) => {
                         e.stopPropagation();
-                        e.preventDefault();
                       }}
                       href={post.url}
                       target="_blank"

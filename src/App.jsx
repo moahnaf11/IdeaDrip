@@ -286,6 +286,7 @@ function App() {
               <img
                 src={isAuth?.photo}
                 className="w-8 h-8 bg-gray-300 rounded-full object-cover"
+                referrerPolicy="no-referrer"
               ></img>
               <div className="ml-2">
                 <p className="text-sm font-medium">{isAuth?.username}</p>
