@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { FaReddit, FaSearch, FaCheck, FaTimes } from "react-icons/fa";
 import { ImSpinner } from "react-icons/im";
 import AudienceCard from "./AudienceCard.jsx";
+import { useAuthFetch } from "../authFetch.js";
 function Audience() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,19 +15,27 @@ function Audience() {
   const [editingAudienceId, setEditingAudienceId] = useState(null);
   const [result, setResult] = useState(true);
   const [showSelectedOnly, setShowSelectedOnly] = useState(false);
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     const controller = new AbortController();
+
     const getAudiences = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/audience`, {
-          method: "GET",
-          credentials: "include",
-          signal: controller.signal,
-          headers: {
-            "Content-Type": "application/json",
+        const res = await authFetch(
+          `${import.meta.env.VITE_SERVER_URL}/audience`,
+          {
+            method: "GET",
+            credentials: "include",
+            signal: controller.signal,
+            headers: {
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
+        if (!res) {
+          return;
+        }
         const data = await res.json();
         if (!res.ok) {
           console.log("no audiences", data?.msg);
@@ -43,7 +52,7 @@ function Audience() {
     return () => {
       controller.abort();
     };
-  }, []);
+  }, [authFetch]);
 
   const filteredSubreddits = subreddits.filter(
     (subreddit) =>
@@ -69,18 +78,21 @@ function Audience() {
     setIsedit(false);
     if (!isedit) {
       try {
-        const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/audience`, {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
+        const res = await authFetch(
+          `${import.meta.env.VITE_SERVER_URL}/audience`,
+          {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              title,
+              subreddits: selectedSubreddits,
+              searchTerm,
+            }),
           },
-          body: JSON.stringify({
-            title,
-            subreddits: selectedSubreddits,
-            searchTerm,
-          }),
-        });
+        );
 
         const data = await res.json();
         if (res.ok) {
@@ -97,7 +109,7 @@ function Audience() {
       }
     } else {
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `${import.meta.env.VITE_SERVER_URL}/audience/${editingAudienceId}`,
           {
             method: "PUT",
@@ -142,7 +154,7 @@ function Audience() {
     try {
       setResult(true);
       setLoading(true);
-      const response = await fetch(
+      const response = await authFetch(
         `${import.meta.env.VITE_SERVER_URL}/api/reddit/reddit-specific-subreddit?q=${searchTerm.trim()}`,
       );
       if (!response.ok) {

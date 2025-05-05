@@ -4,10 +4,12 @@ const fetchPosts = async (
   setAllPosts,
   subreddits,
   setLoading,
+  setSavedPostId,
+  authFetch,
 ) => {
   try {
     setLoading(true);
-    const response = await fetch(
+    const response = await authFetch(
       `${import.meta.env.VITE_SERVER_URL}/api/reddit/reddit-posts`,
       {
         mode: "cors",
@@ -20,12 +22,16 @@ const fetchPosts = async (
         body: JSON.stringify({ sort, subreddits }),
       },
     );
+    if (!response) {
+      return;
+    }
     if (!response.ok) {
       console.log("response failed");
       return;
     }
     const data = await response.json();
-    setAllPosts(data);
+    setAllPosts(data.posts);
+    setSavedPostId(data.saved);
     setLoading(false);
   } catch (err) {
     console.log("Failed in fetch posts", err);

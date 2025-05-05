@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { FaTag, FaTimes, FaRegEdit } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useAuthFetch } from "../authFetch";
 
 function AudienceCard({
   item,
@@ -17,6 +18,7 @@ function AudienceCard({
   const containerRef = useRef(null);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const maxHeight = 40;
+  const authFetch = useAuthFetch();
 
   useEffect(() => {
     if (containerRef.current) {
@@ -36,7 +38,7 @@ function AudienceCard({
 
   const deleteAudience = async (id) => {
     try {
-      const res = await fetch(
+      const res = await authFetch(
         `${import.meta.env.VITE_SERVER_URL}/audience/${id}`,
         {
           method: "DELETE",

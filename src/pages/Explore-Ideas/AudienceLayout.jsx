@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, Outlet, useParams } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
 import { BiSearch } from "react-icons/bi";
+import { useAuthFetch } from "../authFetch";
 function AudienceLayout() {
   const [posts, setPosts] = useState([]);
   const [allPosts, setAllPosts] = useState([]);
@@ -12,6 +13,7 @@ function AudienceLayout() {
   const [isFocused, setIsFocused] = useState(false);
   const { audienceId } = useParams();
   const [sortOption, setSortOption] = useState("");
+  const authFetch = useAuthFetch();
 
   // Sort posts
   const sortPosts = (option) => {
@@ -23,7 +25,7 @@ function AudienceLayout() {
     const controller = new AbortController();
     const fetchAudience = async () => {
       try {
-        const res = await fetch(
+        const res = await authFetch(
           `${import.meta.env.VITE_SERVER_URL}/audience/${audienceId}`,
           {
             mode: "cors",
@@ -32,6 +34,9 @@ function AudienceLayout() {
             signal: controller.signal,
           },
         );
+        if (!res) {
+          return;
+        }
         const data = await res.json();
         if (!res.ok) {
           console.log(data.msg);
@@ -48,7 +53,7 @@ function AudienceLayout() {
     return () => {
       controller.abort();
     };
-  }, [audienceId]);
+  }, [audienceId, authFetch]);
 
   useEffect(() => {
     if (!sortOption) {
