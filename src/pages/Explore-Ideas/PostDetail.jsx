@@ -1,9 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import { FaTimes, FaArrowUp, FaUser, FaRegCommentDots } from "react-icons/fa";
 import { AiOutlineRobot } from "react-icons/ai";
+import { ImSpinner } from "react-icons/im";
+import { useAuthFetch } from "../authFetch";
 
 function PostDetail({ post, open, setOpen, setPost }) {
+  const authFetch = useAuthFetch();
   const [showAI, setShowAI] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [airesult, setAiresult] = useState("");
   const dialogRef = useRef(null);
   function parseMarkdownLinks(text) {
     // Turns [label](url) into anchor tags (basic)
@@ -24,6 +29,32 @@ function PostDetail({ post, open, setOpen, setPost }) {
       setPost(null);
     }
   }, [open, setPost]);
+
+  // ai summary
+  const aiSummary = async () => {
+    setLoading(true);
+    const text = `${post.title} ${post.selftext.trim()}`;
+    try {
+      const res = await authFetch(
+        `${import.meta.env.VITE_SERVER_URL}/post/summarize`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text }),
+        },
+      );
+
+      const data = await res.json();
+      console.log("AI Result:", data.result);
+      setShowAI(true);
+      setLoading(false);
+      setAiresult(data.result);
+    } catch (err) {
+      console.error("Failed to fetch AI summary:", err);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -78,9 +109,14 @@ function PostDetail({ post, open, setOpen, setPost }) {
               </div>
             </div>
             {/* Title - NOT scrollable */}
-            <h2 className="font-extrabold text-gray-900 pt-6 px-8 pb-2 flex-shrink-0 bg-white z-10">
+            <a
+              href={post.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-extrabold text-gray-900 pt-6 px-8 pb-2 flex-shrink-0 bg-white z-10"
+            >
               {post.title}
-            </h2>
+            </a>
 
             {/* Post body - scrollable only body */}
             <div
@@ -119,9 +155,7 @@ function PostDetail({ post, open, setOpen, setPost }) {
                   AI Response
                 </div>
                 <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 w-full text-gray-700 text-base shadow-sm overflow-y-auto ">
-                  It depends on your circumstances, but these articles and the
-                  subreddit have plenty of information to guide you. Research,
-                  plan, and reach out to the community!
+                  {airesult}
                 </div>
               </div>
             </div>
@@ -130,10 +164,18 @@ function PostDetail({ post, open, setOpen, setPost }) {
           {/* Ask AI Button - fixed to bottom-right of dialog */}
           {!showAI && (
             <button
-              onClick={() => setShowAI(true)}
-              className="absolute text-sm right-3 bottom-[1rem] z-20 bg-gradient-to-r from-purple-500 via-violet-500 to-fuchsia-500 text-white font-semibold rounded-xl px-2 py-1 shadow-lg hover:opacity-90 transition flex items-center gap-3"
+              disabled={loading}
+              onClick={aiSummary}
+              className={`absolute text-sm right-3 bottom-[1rem] z-20 text-white font-semibold rounded-xl px-2 py-1 shadow-lg transition flex items-center gap-3
+                ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-purple-500 via-violet-500 to-fuchsia-500 hover:opacity-90"}
+              `}
             >
-              <AiOutlineRobot className="size-5" /> AskAI
+              {loading ? (
+                <ImSpinner className="size-5 animate-spin" />
+              ) : (
+                <AiOutlineRobot className="size-5" />
+              )}
+              {!loading && "AskAI"}
             </button>
           )}
         </div>
