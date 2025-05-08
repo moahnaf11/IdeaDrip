@@ -32,6 +32,13 @@ function RedditHot() {
     };
   }, [setAllPosts, singleAudience.subreddits, authFetch]);
 
+  function decodeHtmlEntities(str) {
+    const parser = new DOMParser();
+    const decodedString = parser.parseFromString(str, "text/html").body
+      .textContent;
+    return decodedString || str;
+  }
+
   return (
     <>
       {/* Dashboard Design Card (Low) */}
@@ -71,7 +78,7 @@ function RedditHot() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {post.title}
+                        {decodeHtmlEntities(post.title)}
                       </a>
                     </h3>
                     <button
@@ -110,9 +117,11 @@ function RedditHot() {
                   {/* Selftext / description */}
                   {post.selftext && (
                     <p className="text-gray-600 text-sm mb-6 line-clamp-3">
-                      {post.selftext.length > 200
-                        ? `${post.selftext.slice(0, 200)}...`
-                        : post.selftext}
+                      {decodeHtmlEntities(
+                        post.selftext.length > 200
+                          ? `${post.selftext.slice(0, 200)}...`
+                          : post.selftext,
+                      )}
                     </p>
                   )}
 
