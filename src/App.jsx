@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { FiGrid, FiSettings, FiHelpCircle, FiLogOut } from "react-icons/fi";
 import {
@@ -10,6 +10,8 @@ import { useContext } from "react";
 import { AuthContext } from "./auth/authContext";
 import { FaBookmark } from "react-icons/fa";
 import { useAuthFetch } from "./pages/authFetch";
+import QuestionForm from "./pages/Explore-Ideas/QuestionForm";
+import { FormDataContext } from "./pages/Explore-Ideas/questionformcontext";
 
 function App() {
   const navigate = useNavigate();
@@ -18,6 +20,13 @@ function App() {
   const [hoveredItem, setHoveredItem] = useState(null);
   const authFetch = useAuthFetch();
   const location = useLocation();
+  const dialogRef = useRef(null);
+  const [formData, setFormData] = useState({
+    funding: "",
+    experience: "",
+    ideas: "",
+    time: "",
+  });
 
   const menuItems = [
     { icon: FiGrid, label: "Explore Ideas", id: "explore-ideas", path: "/" },
@@ -227,8 +236,20 @@ function App() {
             </div>
           </div>
         </div>
-
-        <Outlet />
+        {/* Question Form */}
+        <QuestionForm
+          dialogRef={dialogRef}
+          formData={formData}
+          setFormData={setFormData}
+        />
+        <FormDataContext
+          value={{
+            formData,
+            setFormData,
+          }}
+        >
+          <Outlet context={{ dialogRef }} />
+        </FormDataContext>
       </div>
     </div>
   );

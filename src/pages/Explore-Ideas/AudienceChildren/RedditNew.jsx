@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import fetchPosts from "../fetchPosts";
 import { ImSpinner } from "react-icons/im";
@@ -6,6 +6,7 @@ import PostDetail from "../PostDetail";
 import handleToggleSave from "../../toggleSave";
 import { FaBookmark, FaRegBookmark } from "react-icons/fa";
 import { useAuthFetch } from "../../authFetch";
+import { FormDataContext } from "../questionformcontext";
 
 function RedditNew() {
   const { posts, singleAudience, query, setAllPosts } = useOutletContext();
@@ -14,6 +15,7 @@ function RedditNew() {
   const [post, setPost] = useState(null);
   const [open, setOpen] = useState(false);
   const [savedPostId, setSavedPostId] = useState([]);
+  const { formData } = useContext(FormDataContext);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -176,6 +178,7 @@ function RedditNew() {
           open={open}
           setOpen={setOpen}
           setPost={setPost}
+          formData={formData}
         />
       )}
     </>

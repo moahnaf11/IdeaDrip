@@ -3,6 +3,8 @@ import { FaReddit, FaSearch, FaCheck, FaTimes } from "react-icons/fa";
 import { ImSpinner } from "react-icons/im";
 import AudienceCard from "./AudienceCard.jsx";
 import { useAuthFetch } from "../authFetch.js";
+import { BiPlusCircle } from "react-icons/bi";
+import { useOutletContext } from "react-router-dom";
 function Audience() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -15,6 +17,7 @@ function Audience() {
   const [editingAudienceId, setEditingAudienceId] = useState(null);
   const [result, setResult] = useState(true);
   const [showSelectedOnly, setShowSelectedOnly] = useState(false);
+  const { dialogRef } = useOutletContext();
   const authFetch = useAuthFetch();
 
   useEffect(() => {
@@ -176,16 +179,26 @@ function Audience() {
 
   return (
     <div className="min-h-screen text-sm lg:text-[16px] bg-gray-100 p-6">
-      <div className="flex justify-between items-center">
+      <div className="flex gap-3 flex-col md:flex-row justify-between items-center">
         <h2>Your Target Communities</h2>
-        <button
-          onClick={() => setIsDialogOpen(true)}
-          className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"
-        >
-          <FaReddit className="mr-2" />
-          Select Subreddits
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => dialogRef.current.showModal()}
+            className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            <BiPlusCircle className="text-xl" />
+            Details
+          </button>
+          <button
+            onClick={() => setIsDialogOpen(true)}
+            className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center"
+          >
+            <FaReddit className="mr-2" />
+            Select Subreddits
+          </button>
+        </div>
       </div>
+
       {/* audiences */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {audience.length === 0 ? (

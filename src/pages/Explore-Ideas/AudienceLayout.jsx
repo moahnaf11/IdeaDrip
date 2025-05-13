@@ -1,9 +1,9 @@
 import FilterBar from "./FilterBar";
 import DashNav from "./DashNav";
 import { useEffect, useState } from "react";
-import { Link, Outlet, useParams } from "react-router-dom";
+import { Link, Outlet, useOutletContext, useParams } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
-import { BiSearch } from "react-icons/bi";
+import { BiPlusCircle, BiSearch } from "react-icons/bi";
 import { useAuthFetch } from "../authFetch";
 function AudienceLayout() {
   const [posts, setPosts] = useState([]);
@@ -13,6 +13,7 @@ function AudienceLayout() {
   const [isFocused, setIsFocused] = useState(false);
   const { audienceId } = useParams();
   const [sortOption, setSortOption] = useState("");
+  const { dialogRef } = useOutletContext();
   const authFetch = useAuthFetch();
 
   // Sort posts
@@ -124,6 +125,13 @@ function AudienceLayout() {
           "
         />
       </div>
+      <button
+        onClick={() => dialogRef.current.showModal()}
+        className="flex items-center text-xs gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        <BiPlusCircle className="text-xl" />
+        Details
+      </button>
       {singleAudience && (
         <Outlet
           context={{

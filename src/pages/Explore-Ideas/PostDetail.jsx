@@ -4,7 +4,7 @@ import { AiOutlineRobot } from "react-icons/ai";
 import { ImSpinner } from "react-icons/im";
 import { useAuthFetch } from "../authFetch";
 
-function PostDetail({ post, open, setOpen, setPost }) {
+function PostDetail({ post, open, setOpen, setPost, formData }) {
   const authFetch = useAuthFetch();
   const [showAI, setShowAI] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -42,7 +42,7 @@ function PostDetail({ post, open, setOpen, setPost }) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ text }),
+          body: JSON.stringify({ text, formData }),
         },
       );
 
@@ -155,7 +155,7 @@ function PostDetail({ post, open, setOpen, setPost }) {
                   AI Response
                 </div>
                 <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 w-full text-gray-700 text-base shadow-sm overflow-y-auto ">
-                  {airesult}
+                  <pre className="whitespace-pre-wrap">{airesult}</pre>
                 </div>
               </div>
             </div>
