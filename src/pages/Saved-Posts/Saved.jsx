@@ -79,15 +79,16 @@ function Saved() {
                   </a>
                 </h3>
                 <button
-                  onClick={() =>
+                  onClick={(e) => {
+                    e.stopPropagation();
                     handleToggleSave(
                       postSaved.post.id,
                       "unsave",
                       setSavedPosts,
                       null,
                       authFetch,
-                    )
-                  }
+                    );
+                  }}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <FaBookmark />
