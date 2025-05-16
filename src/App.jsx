@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { FiGrid, FiSettings, FiHelpCircle, FiLogOut } from "react-icons/fi";
 import {
-  IoNotificationsOutline,
+  // IoNotificationsOutline,
   IoMailOutline,
   IoChevronBack,
 } from "react-icons/io5";
@@ -12,11 +12,13 @@ import { FaBookmark } from "react-icons/fa";
 import { useAuthFetch } from "./pages/authFetch";
 import QuestionForm from "./pages/Explore-Ideas/QuestionForm";
 import { FormDataContext } from "./pages/Explore-Ideas/questionformcontext";
+import { TiThMenu } from "react-icons/ti";
 
 function App() {
   const navigate = useNavigate();
   const { isAuth } = useContext(AuthContext);
   const [isOpen, setIsOpen] = useState(true); // Sidebar open by default
+  const [isMobileOpen, setIsMobileOpen] = useState(false); // mobile sidebar toggle
   const [hoveredItem, setHoveredItem] = useState(null);
   const authFetch = useAuthFetch();
   const location = useLocation();
@@ -41,7 +43,10 @@ function App() {
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <div className="transition-all duration-300 bg-white border-r p-3 md:p-6">
+      <div
+        className={`transition-all duration-300 bg-white border-r p-3 md:p-6 ${isMobileOpen ? "block top-0 bottom-0 absolute w-[70%] shadow-md z-50 bg-white" : "hidden"}
+    md:static md:block`}
+      >
         <div
           className={`flex justify-between items-center mb-8 ${
             isOpen ? "" : "flex-col-reverse"
@@ -50,13 +55,22 @@ function App() {
           <div className="flex gap-1 items-center">
             <div className="w-8 h-8 bg-primary rounded-full"></div>
             <span
-              className={`ml-2 text-xl font-semibold hidden ${
-                isOpen ? "md:block" : "hidden"
+              className={`ml-2 text-xl font-semibold ${
+                isOpen ? "block" : "hidden"
               }`}
             >
               IdeaDrip
             </span>
           </div>
+          <button
+            onClick={() => {
+              setIsOpen(false);
+              setIsMobileOpen((prev) => !prev);
+            }}
+            className="hover:bg-gray-100 md:hidden p-2 rounded-lg transition-all duration-200"
+          >
+            <TiThMenu className="w-6 h-6 text-gray-600" />
+          </button>
           <button className="hover:bg-gray-100 hidden md:block p-2 rounded-lg transition-all duration-200">
             <IoChevronBack
               onClick={() => setIsOpen((prev) => !prev)}
@@ -70,8 +84,8 @@ function App() {
         <div className="space-y-6">
           <div>
             <p
-              className={`text-gray-400 text-sm mb-4 hidden ${
-                isOpen ? "md:block" : "hidden"
+              className={`text-gray-400 text-sm mb-4 ${
+                isOpen ? "block" : "hidden"
               }`}
             >
               MENU
@@ -88,6 +102,7 @@ function App() {
                 <NavLink
                   key={item.id}
                   to={item.path}
+                  onClick={() => setIsMobileOpen(false)}
                   onMouseEnter={() => setHoveredItem(item.id)}
                   onMouseLeave={() => setHoveredItem(null)}
                   className={`flex items-center w-full p-2 rounded-lg mb-2 relative transition-all duration-200 ${
@@ -97,9 +112,7 @@ function App() {
                   }`}
                 >
                   <item.icon className="w-5 h-5" />
-                  <span
-                    className={`ml-3 hidden ${isOpen ? "md:block" : "hidden"}`}
-                  >
+                  <span className={`ml-3 ${isOpen ? "block" : "hidden"}`}>
                     {item.label}
                   </span>
                   {hoveredItem === item.id && !isOpen && (
@@ -114,8 +127,8 @@ function App() {
 
           <div>
             <p
-              className={`text-gray-400 text-sm mb-4 hidden ${
-                isOpen ? "md:block" : "hidden"
+              className={`text-gray-400 text-sm mb-4 ${
+                isOpen ? "block" : "hidden"
               }`}
             >
               GENERAL
@@ -125,6 +138,7 @@ function App() {
               to="/settings"
               onMouseEnter={() => setHoveredItem("Settings")}
               onMouseLeave={() => setHoveredItem(null)}
+              onClick={() => setIsMobileOpen(false)}
               className={({ isActive }) =>
                 `flex items-center w-full p-2 rounded-lg mb-2 relative transition-all duration-200 ${
                   isActive
@@ -134,7 +148,7 @@ function App() {
               }
             >
               <FiSettings className="w-5 h-5" />
-              <span className={`ml-3 hidden ${isOpen ? "md:block" : "hidden"}`}>
+              <span className={`ml-3 ${isOpen ? "block" : "hidden"}`}>
                 Settings
               </span>
               {hoveredItem === "Settings" && !isOpen && (
@@ -148,6 +162,7 @@ function App() {
               to="/help-support"
               onMouseEnter={() => setHoveredItem("Help & Support")}
               onMouseLeave={() => setHoveredItem(null)}
+              onClick={() => setIsMobileOpen(false)}
               className={({ isActive }) =>
                 `flex items-center w-full p-2 rounded-lg mb-2 relative transition-all duration-200 ${
                   isActive
@@ -157,7 +172,7 @@ function App() {
               }
             >
               <FiHelpCircle className="w-5 h-5" />
-              <span className={`ml-3 hidden ${isOpen ? "md:block" : "hidden"}`}>
+              <span className={`ml-3 ${isOpen ? "block" : "hidden"}`}>
                 Help & Support
               </span>
               {hoveredItem === "Help & Support" && !isOpen && (
@@ -189,7 +204,7 @@ function App() {
               className="flex relative items-center w-full p-2 rounded-lg mb-2 text-gray-600 hover:bg-primary/5 hover:text-primary transition-all duration-200"
             >
               <FiLogOut className="w-5 h-5" />
-              <span className={`ml-3 hidden ${isOpen ? "md:block" : "hidden"}`}>
+              <span className={`ml-3 ${isOpen ? "block" : "hidden"}`}>
                 Logout
               </span>
               {hoveredItem === "Logout" && !isOpen && (
@@ -206,7 +221,7 @@ function App() {
       <div className="flex-1 overflow-auto">
         {/* Header */}
         <div className="bg-white p-6 flex gap-2 flex-col-reverse lg:flex-row justify-between items-center border-b">
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <input
               type="text"
               placeholder="Search task"
@@ -215,14 +230,23 @@ function App() {
             <span className="ml-2 px-2 py-1 bg-gray-200 rounded text-sm">
               ⌘F
             </span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <button className="hover:bg-gray-100 p-2 rounded-lg transition-all duration-200">
+          </div> */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => {
+                setIsOpen(true);
+                setIsMobileOpen((prev) => !prev);
+              }}
+              className="md:hidden hover:bg-gray-100 p-1 rounded-lg transition-all duration-200"
+            >
+              <TiThMenu className="w-6 h-6 text-gray-600" />
+            </button>
+            <button className="hover:bg-gray-100 p-1 rounded-lg transition-all duration-200">
               <IoMailOutline className="w-6 h-6 text-gray-600" />
             </button>
-            <button className="hover:bg-gray-100 p-2 rounded-lg transition-all duration-200">
+            {/* <button className="hover:bg-gray-100 p-2 rounded-lg transition-all duration-200">
               <IoNotificationsOutline className="w-6 h-6 text-gray-600" />
-            </button>
+            </button> */}
             <div className="flex items-center">
               <img
                 src={isAuth?.photo}
